@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob: https: http:; connect-src 'self' https: http: ws: wss:; img-src 'self' data: blob:"
+    />
+    <title>Live Multiviewer · 六路视频监看</title>
+    <link rel="stylesheet" href="/src/ui/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Live Multiviewer · 当前六路布局</p>
+          <h1>六路视频监看</h1>
+        </div>
+        <div class="system-summary" aria-label="系统状态">
+          <span id="gateway-status"><i class="status-dot"></i>媒体网关检查中</span>
+          <span id="runtime">运行 00:00:00</span>
+          <span id="clock">--:--:--</span>
+        </div>
+        <nav class="toolbar" aria-label="主操作">
+          <button id="config-button" class="button button--primary" type="button">
+            视频源设置
+          </button>
+          <button id="lock-button" class="button button--quiet" type="button">已锁定布局</button>
+          <button id="reconnect-button" class="button button--quiet" type="button">全部重连</button>
+          <button id="fullscreen-button" class="button button--primary" type="button">全屏</button>
+        </nav>
+      </header>
+
+      <section id="source-grid" class="source-grid" aria-label="六路视频画面"></section>
+
+      <footer class="event-rail">
+        <button id="events-button" class="event-summary" type="button">
+          <span id="event-count" class="event-count">0</span>
+          <span id="event-message">暂无信号异常</span>
+        </button>
+        <div class="interaction-hints">
+          <span>设置按钮填写地址</span>
+          <span>单击监听</span>
+          <span>双击放大</span>
+          <span>Esc 返回</span>
+        </div>
+      </footer>
+    </main>
+
+    <dialog id="config-dialog" class="dialog">
+      <form id="config-form" method="dialog">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">开播前配置</p>
+            <h2>六路视频源</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭配置" type="submit">×</button>
+        </header>
+        <p class="dialog-copy">
+          每个窗口独立填写一路地址；留空即显示未配置。可直接填写 RTSP、RTMP、SRT、HLS、HTTP-FLV、
+          HTTP-TS、MP4 或 WebM；本机媒体网关会统一转换并提供相同的状态与音频指标。
+        </p>
+        <div id="config-fields" class="config-fields"></div>
+        <footer class="dialog-actions">
+          <button class="button button--quiet" value="cancel" type="submit">取消</button>
+          <button id="save-config-button" class="button button--primary" value="save" type="submit">
+            保存并重新连接
+          </button>
+        </footer>
+      </form>
+    </dialog>
+
+    <aside id="event-drawer" class="event-drawer" aria-hidden="true">
+      <header class="drawer-header">
+        <div>
+          <p class="eyebrow">最近事件</p>
+          <h2>信号状态记录</h2>
+        </div>
+        <div class="drawer-actions">
+          <button id="clear-events-button" class="button button--quiet" type="button">
+            清空记录
+          </button>
+          <button id="close-events-button" class="icon-button" type="button" aria-label="关闭事件">
+            ×
+          </button>
+        </div>
+      </header>
+      <ol id="event-list" class="event-list"></ol>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
