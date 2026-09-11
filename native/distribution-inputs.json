@@ -1,0 +1,128 @@
+[
+  {
+    "file": "ffmpeg.tar.gz",
+    "url": "https://github.com/FFmpeg/FFmpeg/archive/38b88335f99e76ed89ff3c93f877fdefce736c13.tar.gz",
+    "sha256": "2ae7e42343cfffb811d15cfe98b6d005f082595fcdf034d30a4ff90cfed9f9c6",
+    "role": "source"
+  },
+  {
+    "file": "x264.tar.gz",
+    "url": "https://github.com/mirror/x264/archive/eaa68fad9e5d201d42fde51665f2d137ae96baf0.tar.gz",
+    "sha256": "580f07f08af23768074e5346bdf32c77b68b4d4e614f4998ea869b02fc29714d",
+    "role": "source"
+  },
+  {
+    "file": "zlib.tar.gz",
+    "url": "https://github.com/madler/zlib/archive/51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf.tar.gz",
+    "sha256": "d9e270d46252734aa49770fbc544125391617956266f220bd63216c834f3a522",
+    "role": "source"
+  },
+  {
+    "file": "opus.tar.gz",
+    "url": "https://github.com/xiph/opus/archive/ddbe48383984d56acd9e1ab6a090c54ca6b735a6.tar.gz",
+    "sha256": "18e9d9e26565e279753aafb6823a482ef85ea9fddbfdcdbff8fd095b12dd96b6",
+    "role": "source"
+  },
+  {
+    "file": "ogg.tar.gz",
+    "url": "https://github.com/xiph/ogg/archive/fa80aae9d50096160f2b56ada35527d7aee3f746.tar.gz",
+    "sha256": "e6a3581e2e09679ae3bce702dcc1f310207bad69600abce3e741214bb749e370",
+    "role": "source"
+  },
+  {
+    "file": "vorbis.tar.gz",
+    "url": "https://github.com/xiph/vorbis/archive/2eac96b03ff67953354cb0a649c08aa3a23267ef.tar.gz",
+    "sha256": "a9323a23ef91e087504152764e3e50a845daf2b469713455689ff6bdc60d3514",
+    "role": "source"
+  },
+  {
+    "file": "vpx.zip",
+    "url": "https://github.com/webmproject/libvpx/archive/refs/tags/v1.14.1.zip",
+    "sha256": "f40e4c7e7b4025d18be17a8225f8be2f26b349715399cd36c2de573fe976dfd7",
+    "role": "source"
+  },
+  {
+    "file": "svt-av1.tar.gz",
+    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/6e69def4ec283fe0b71195671245c3b768bebdef/SVT-AV1-6e69def4ec283fe0b71195671245c3b768bebdef.tar.gz",
+    "sha256": "8c7921e9f44f1dc18d51351fe353e6c86de306cc9e7e159a4d479dfc01456d6d",
+    "role": "source"
+  },
+  {
+    "file": "aom.tar.gz",
+    "url": "https://aomedia.googlesource.com/aom/+archive/d772e334cc724105040382a977ebb10dfd393293.tar.gz",
+    "sha256": "cd52458f4a7beb8887905146902063febc5c5b89f82ad69e7234168114297fdd",
+    "role": "source"
+  },
+  {
+    "file": "theora.zip",
+    "url": "https://ftp.osuosl.org/pub/xiph/releases/theora/libtheora-1.1.1.zip",
+    "sha256": "f644fef154f7a80e7258c8baec5c510f594d720835855cddce322b924934ba36",
+    "role": "source"
+  },
+  {
+    "file": "lame.tar.gz",
+    "url": "https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz",
+    "sha256": "ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e",
+    "role": "source"
+  },
+  {
+    "file": "mbedtls.tar.gz",
+    "url": "https://github.com/Mbed-TLS/mbedtls/archive/c765c831e5c2a0971410692f92f7a81d6ec65ec2.tar.gz",
+    "sha256": "0f050462eabf814c7e3b37825efc4d8dd1caf6a3b3eeb350705ad818d6ca770a",
+    "role": "source"
+  },
+  {
+    "file": "srt.zip",
+    "url": "https://github.com/Haivision/srt/archive/refs/tags/v1.5.2.zip",
+    "sha256": "2686f75533bd53ec917dab6129186b124b4d105eadaa6a84e83719ac3b5ae6bd",
+    "role": "source"
+  },
+  {
+    "file": "rist.tar.gz",
+    "url": "https://code.videolan.org/rist/librist/-/archive/809390b3b75a259a704079d0fb4d8f1b5f7fa956/librist-809390b3b75a259a704079d0fb4d8f1b5f7fa956.tar.gz",
+    "sha256": "fd725c491e4a72d7d2620adc1127355536bf01e1c8ffc874d32be42a822f8117",
+    "role": "source"
+  },
+  {
+    "file": "nv-codec.tar.gz",
+    "url": "https://github.com/FFmpeg/nv-codec-headers/archive/e844e5b26f46bb77479f063029595293aa8f812d.tar.gz",
+    "sha256": "42d72fbcca46e05a1c05a79f1cda1fedd68ba686b21adf917e05d908153645d9",
+    "role": "source"
+  },
+  {
+    "file": "amf.tar.gz",
+    "url": "https://github.com/GPUOpen-LibrariesAndSDKs/AMF/archive/afed28d37aca1938da2eedc50599bb3535a987ec.tar.gz",
+    "sha256": "79ca6faacc982a49a23be0b3a58c4e57e8dc5c8f87b59605831ee77412e8a5b4",
+    "role": "source"
+  },
+  {
+    "file": "OBS-Studio-32.2.1-Sources.tar.gz",
+    "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.1/OBS-Studio-32.2.1-Sources.tar.gz",
+    "sha256": "6a2532b1094bc51bc2fdeb1068d5c19cfe04216191a5b35c8707625401a80bf4",
+    "role": "source"
+  },
+  {
+    "file": "obs-deps-2026-07-15.tar.gz",
+    "url": "https://api.github.com/repos/obsproject/obs-deps/tarball/2026-07-15",
+    "sha256": "a4f6ce9d3dbdf50e9756a80b2f279942db5a39e0e15551d41019f59f0a5872f5",
+    "role": "source"
+  },
+  {
+    "file": "mbedtls-framework.tar.gz",
+    "url": "https://github.com/Mbed-TLS/mbedtls-framework/archive/2a3e2c5ea053c14b745dbdf41f609b1edc6a72fa.tar.gz",
+    "sha256": "f5934ffcad4c32a95f9281f0f95908eb471ee34df721fb9d6ad4adb9567f6b61",
+    "role": "source"
+  },
+  {
+    "file": "OBS-Studio-32.2.1-Windows-x64.zip",
+    "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.1/OBS-Studio-32.2.1-Windows-x64.zip",
+    "sha256": "db64a2934f8261f85b1410b84be011207a0afda5400d008289f1f1e211bcc7de",
+    "role": "runtime"
+  },
+  {
+    "file": "windows-deps-2026-07-15-x64.zip",
+    "url": "https://github.com/obsproject/obs-deps/releases/download/2026-07-15/windows-deps-2026-07-15-x64.zip",
+    "sha256": "6f90e9598fa10cff5ad23cdcfae49b87868c07bf896b02cd464582b4ce2f2ba9",
+    "role": "licenses"
+  }
+]

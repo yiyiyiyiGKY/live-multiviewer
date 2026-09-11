@@ -1,0 +1,18 @@
+Live Multiviewer native monitor
+Copyright (C) 2026 Live Multiviewer contributors
+
+The new native monitor code in this directory is free software: you may
+redistribute it and/or modify it under the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version.
+
+It is distributed WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See LICENSE.
+
+This notice applies to the native monitor and its distribution scripts,
+not to unrelated files in the original web project.
+
+OBS Studio and libobs are Copyright OBS Project and contributors and are
+licensed GPL-2.0-or-later. Bundled FFmpeg is configured with --enable-gpl
+and --enable-version3. See the included upstream licenses and sources.
+No endorsement by OBS Project is implied.

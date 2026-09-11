@@ -10,8 +10,12 @@
     "node": "^20.19.0 || ^22.13.0 || >=24.0.0"
   },
   "scripts": {
-    "start": "npm run dev",
-    "dev": "node scripts/develop.js",
+    "start": "node scripts/start-native.js",
+    "dev": "npm start",
+    "legacy": "node scripts/develop.js",
+    "build:native": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File native/build.ps1",
+    "test:native": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File native/build.ps1 -Test",
+    "package:native": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File native/package.ps1",
     "dev:web": "vite",
     "gateway": "node server/media-gateway.js",
     "build": "vite build",
