@@ -1,6 +1,24 @@
 # Live Multiviewer
 
-通用的导播多画面视频监看软件。当前版本实现首个六路监看规格，但项目名称、领域模型和模块边界不绑定特定直播或固定路数。
+通用的导播六路视频监看软件。Windows 原生版直接使用 OBS 媒体源解码和 D3D11 绘制，跳过原网页方案的本机转码与 HLS 分片；旧网页版本仍可单独运行。
+
+## Windows 原生版与转发包
+
+源码运行：双击 `start-monitor.cmd`，或执行 `npm start` / `npm run dev`。需要 Windows 10/11 x64、.NET Framework 4.x 和 OBS 32.2.x x64。自动查找 `D:\obs-studio` 或默认 Program Files 安装目录，也可设置 `OBS_ROOT`。不需要安装 npm 依赖，不修改现有 OBS 配置，不启动 HTTP 服务。
+
+```powershell
+npm run build:native
+npm run test:native
+npm run package:native
+```
+
+打包命令下载并校验固定版本的官方运行库和源码，生成 `releases/LiveMultiviewer-0.1.0-preview-win-x64-*.zip`，避免被网页构建清空。采用全新目录和文件白名单，排除直播配置、日志、Git 与本地 OBS 插件。对方完整解压后双击 `LiveMultiviewer.exe`，无需安装 OBS 或开发环境；若缺少系统级 Microsoft Visual C++ v14 x64 运行库，按包内说明从微软安装。
+
+原生版包括六路预览、同地址共享解码、监听、聚焦、布局排序、重连、分辨率、音频电平和信号异常提示。配置用 Windows 当前用户加密，保存在 `.runtime/native-settings.dat`；首次运行可读取旧 `.runtime/settings.json`，但不覆盖它。原生版当前不显示源帧率/码率，也不直接采集 USB 摄像头或 OBS 场景。
+
+自检使用本地合成媒体验证真实 libobs 解码、六路绘制与状态检测、来源替换和释放。尚未证明真实直播达到 OBS 同等延迟，也未完成长时间稳定性验证，分发包标记为试用版。完整操作、验证边界与开源许可见 [分发说明](native/DISTRIBUTION.md)。新原生代码与分发脚本采用 GPL-3.0-or-later；原网页代码的许可声明未更改。
+
+以下章节描述保留的旧网页版本。
 
 ## 当前能力
 
@@ -24,12 +42,12 @@
 
 ```bash
 npm ci
-npm run dev
+npm run legacy
 ```
 
 访问 <http://127.0.0.1:4173>。
 
-`npm run dev` 同时启动网页和本机媒体网关：
+`npm run legacy` 同时启动网页和本机媒体网关：
 
 - 监看页面：`http://127.0.0.1:4173`
 - 媒体网关：`http://127.0.0.1:4174`

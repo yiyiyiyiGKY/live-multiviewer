@@ -1,5 +1,11 @@
 # 工程架构
 
+## Windows 原生入口
+
+默认 `npm start` / `npm run dev` 已改为启动 `native/` 的 Windows 监看程序。它直接加载 OBS 32.2.x 的 `libobs` 与 `obs-ffmpeg`，由 `SourcePool` 按地址共享解码来源，`VideoPanel` 用 D3D11 显示。`MonitorWindow` 管理六路布局与监听，`SettingsStore` 使用 Windows 当前用户加密配置。打包入口为 `native/package.ps1`，分发和验证边界见 [分发说明](../native/DISTRIBUTION.md)。
+
+以下为保留的网页版本架构，仅适用于 `npm run legacy`，其中的本机 HLS 网关不在原生播放路径中。
+
 ## 产品边界
 
 Live Multiviewer 是可复用的导播多画面视频监看软件。项目名称和核心领域不绑定特定直播、人物或画面数量。
