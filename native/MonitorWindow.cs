@@ -33,7 +33,7 @@ namespace LiveMultiviewer
             settings.Normalize();
             synthetic = useSynthetic;
             events = store == null ? new List<string>() : store.LoadEvents();
-            Text = "Live Multiviewer · 六路直播监看";
+            Text = "Live Multiviewer · 九路直播监看";
             ClientSize = new Size(1380, 840);
             MinimumSize = new Size(800, 520);
             StartPosition = FormStartPosition.CenterScreen;
@@ -138,7 +138,8 @@ namespace LiveMultiviewer
         internal void Arrange()
         {
             if (Tiles.Count == 0) return;
-            int columns = grid.Width < 1000 ? 2 : 3, rows = 6 / columns;
+            const int columns = 3;
+            int rows = (Tiles.Count + columns - 1) / columns;
             int width = (grid.ClientSize.Width - 6) / columns, height = (grid.ClientSize.Height - 6) / rows;
             for (int i = 0; i < Tiles.Count; i++)
             {
@@ -194,17 +195,17 @@ namespace LiveMultiviewer
         }
         private void Configure(SourceTile selected)
         {
-            using (Form dialog = new Form { Text = "视频源设置", Width = 980, Height = 590, StartPosition = FormStartPosition.CenterParent, BackColor = BackColor, ForeColor = ForeColor, Font = Font, MinimizeBox = false, MaximizeBox = false })
+            using (Form dialog = new Form { Text = "视频源设置", Width = 980, Height = 720, StartPosition = FormStartPosition.CenterParent, BackColor = BackColor, ForeColor = ForeColor, Font = Font, MinimizeBox = false, MaximizeBox = false })
             {
-                TableLayoutPanel fields = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 7, Padding = new Padding(15), AutoScroll = true };
+                TableLayoutPanel fields = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = MonitorSettings.SourceCount + 1, Padding = new Padding(15), AutoScroll = true };
                 fields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
                 fields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
                 fields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125));
                 fields.Controls.Add(new Label { Text = "名称", AutoSize = true }, 0, 0);
                 fields.Controls.Add(new Label { Text = "视频地址（HTTP / RTSP / RTMP / SRT），留空即停用", AutoSize = true }, 1, 0);
-                TextBox[] names = new TextBox[6], urls = new TextBox[6];
-                CheckBox[] audio = new CheckBox[6];
-                for (int i = 0; i < 6; i++)
+                TextBox[] names = new TextBox[MonitorSettings.SourceCount], urls = new TextBox[MonitorSettings.SourceCount];
+                CheckBox[] audio = new CheckBox[MonitorSettings.SourceCount];
+                for (int i = 0; i < MonitorSettings.SourceCount; i++)
                 {
                     names[i] = new TextBox { Text = Tiles[i].Settings.name, Dock = DockStyle.Top, MaxLength = 30 };
                     urls[i] = new TextBox { Text = Tiles[i].Settings.url, Dock = DockStyle.Top };
@@ -214,7 +215,7 @@ namespace LiveMultiviewer
                 }
                 Button save = Button("保存并应用", delegate {
                     MonitorSettings next = new MonitorSettings { layoutLocked = settings.layoutLocked };
-                    for (int i = 0; i < 6; i++) next.sources.Add(new SourceSettings { id = Tiles[i].Settings.id, name = names[i].Text.Trim(), url = urls[i].Text.Trim(), audioExpected = audio[i].Checked });
+                    for (int i = 0; i < MonitorSettings.SourceCount; i++) next.sources.Add(new SourceSettings { id = Tiles[i].Settings.id, name = names[i].Text.Trim(), url = urls[i].Text.Trim(), audioExpected = audio[i].Checked });
                     try { next.Validate(); }
                     catch (InvalidOperationException error) { MessageBox.Show(dialog, error.Message, "检查配置"); return; }
                     try { ApplySettings(next); }

@@ -17,14 +17,15 @@ namespace LiveMultiviewer
     }
     public sealed class MonitorSettings
     {
+        internal const int SourceCount = 9;
         public List<SourceSettings> sources { get; set; }
         public bool layoutLocked { get; set; }
         public MonitorSettings() { layoutLocked = true; sources = new List<SourceSettings>(); }
         internal void Normalize()
         {
             if (sources == null) sources = new List<SourceSettings>();
-            if (sources.Count > 6) sources.RemoveRange(6, sources.Count - 6);
-            while (sources.Count < 6) sources.Add(new SourceSettings());
+            if (sources.Count > SourceCount) sources.RemoveRange(SourceCount, sources.Count - SourceCount);
+            while (sources.Count < SourceCount) sources.Add(new SourceSettings());
             HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < sources.Count; i++)
             {

@@ -1,5 +1,15 @@
 import { PLAYBACK_ENGINE, classifyMediaUrl } from "../media-url.js";
 
+export const HLS_PLAYBACK_CONFIG = Object.freeze({
+  lowLatencyMode: true,
+  backBufferLength: 6,
+  maxBufferLength: 4,
+  liveSyncDurationCount: 2,
+  liveMaxLatencyDurationCount: 5,
+  liveSyncOnStallIncrease: 0,
+  maxLiveSyncPlaybackRate: 1.1,
+});
+
 export async function createPlaybackAdapter({ url, video, onFatalError, onWarning }) {
   const engine = classifyMediaUrl(url);
   if (engine === PLAYBACK_ENGINE.HLS) {
@@ -19,13 +29,7 @@ function createHlsAdapter({ Hls, url, video, onFatalError, onWarning }) {
   }
   if (!Hls.isSupported()) throw new Error("当前浏览器不支持 HLS 播放");
 
-  const hls = new Hls({
-    lowLatencyMode: true,
-    backBufferLength: 15,
-    maxBufferLength: 10,
-    liveSyncDurationCount: 2,
-    liveMaxLatencyDurationCount: 5,
-  });
+  const hls = new Hls(HLS_PLAYBACK_CONFIG);
 
   hls.on(Hls.Events.ERROR, (_event, data) => {
     if (!data.fatal) {

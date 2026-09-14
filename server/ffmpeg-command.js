@@ -53,6 +53,8 @@ export function createFfmpegArguments(inputUrl, outputDirectory, h264Encoder = "
     "-progress",
     "pipe:1",
     "-nostats",
+    "-flush_packets",
+    "1",
     "-f",
     "hls",
     "-hls_time",
@@ -92,7 +94,12 @@ export async function detectH264Encoder() {
 
 function createInputArguments(inputUrl) {
   const commonArguments = ["-rw_timeout", "10000000"];
-  return new URL(inputUrl).protocol === "rtsp:"
-    ? [...commonArguments, "-rtsp_transport", "tcp", "-use_wallclock_as_timestamps", "1"]
-    : commonArguments;
+  const protocol = new URL(inputUrl).protocol;
+  if (protocol === "rtsp:") {
+    return [...commonArguments, "-rtsp_transport", "tcp", "-use_wallclock_as_timestamps", "1"];
+  }
+  if (protocol === "rtmp:") {
+    return [...commonArguments, "-rtmp_live", "live", "-rtmp_buffer", "0", "-tcp_nodelay", "1"];
+  }
+  return commonArguments;
 }

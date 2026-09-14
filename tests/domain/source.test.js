@@ -13,22 +13,32 @@ import {
   validateSources,
 } from "../../src/domain/source.js";
 
-test("当前默认布局始终生成六路独立视频源", () => {
+test("当前默认布局始终生成九路独立视频源", () => {
   const sources = createDefaultSources();
-  assert.equal(sources.length, 6);
-  assert.equal(new Set(sources.map((source) => source.id)).size, 6);
+  assert.equal(sources.length, 9);
+  assert.equal(new Set(sources.map((source) => source.id)).size, 9);
   assert.deepEqual(
     sources.map((source) => source.name),
-    ["视频源 1", "视频源 2", "视频源 3", "视频源 4", "视频源 5", "视频源 6"],
+    [
+      "视频源 1",
+      "视频源 2",
+      "视频源 3",
+      "视频源 4",
+      "视频源 5",
+      "视频源 6",
+      "视频源 7",
+      "视频源 8",
+      "视频源 9",
+    ],
   );
   assert.ok(sources.every((source) => source.kind === SOURCE_KIND.UNCONFIGURED));
   assert.ok(sources.every((source) => source.url === ""));
 });
 
-test("领域模型不把产品能力锁死为六路", () => {
-  const sources = createDefaultSources(8);
-  assert.equal(sources.length, 8);
-  assert.equal(sources[7].id, "source-8");
+test("领域模型不把产品能力锁死为九路", () => {
+  const sources = createDefaultSources(12);
+  assert.equal(sources.length, 12);
+  assert.equal(sources[11].id, "source-12");
 });
 
 test("损坏或不足的配置会恢复为目标路数", () => {
@@ -36,19 +46,44 @@ test("损坏或不足的配置会恢复为目标路数", () => {
     { id: "same", name: "主机位", kind: "video" },
     { id: "same", name: "" },
   ]);
-  assert.equal(sources.length, 6);
-  assert.equal(new Set(sources.map((source) => source.id)).size, 6);
+  assert.equal(sources.length, 9);
+  assert.equal(new Set(sources.map((source) => source.id)).size, 9);
   assert.equal(sources[0].name, "主机位");
   assert.equal(sources[0].kind, SOURCE_KIND.UNCONFIGURED);
   assert.equal(sources[1].name, "视频源 2");
 });
 
+test("六路旧配置升级为九路时保留原有来源并补三个空位", () => {
+  const legacySources = createDefaultSources(6).map((source, index) => ({
+    ...source,
+    name: `旧来源 ${index + 1}`,
+    url: `rtmp://relay.example/live/source-${index + 1}`,
+  }));
+  const sources = normalizeSources(legacySources);
+  assert.equal(sources.length, 9);
+  assert.deepEqual(
+    sources.slice(0, 6).map((source) => source.name),
+    ["旧来源 1", "旧来源 2", "旧来源 3", "旧来源 4", "旧来源 5", "旧来源 6"],
+  );
+  assert.ok(sources.slice(6).every((source) => source.kind === SOURCE_KIND.UNCONFIGURED));
+});
+
 test("重排只改变窗口顺序，不丢失来源", () => {
   const sources = createDefaultSources();
-  const moved = moveSource(sources, "source-6", "source-2");
+  const moved = moveSource(sources, "source-9", "source-2");
   assert.deepEqual(
     moved.map((source) => source.id),
-    ["source-1", "source-6", "source-2", "source-3", "source-4", "source-5"],
+    [
+      "source-1",
+      "source-9",
+      "source-2",
+      "source-3",
+      "source-4",
+      "source-5",
+      "source-6",
+      "source-7",
+      "source-8",
+    ],
   );
   assert.deepEqual(
     new Set(moved.map((source) => source.id)),

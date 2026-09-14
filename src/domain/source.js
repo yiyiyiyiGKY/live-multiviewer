@@ -1,4 +1,4 @@
-export const DEFAULT_SOURCE_COUNT = 6;
+export const DEFAULT_SOURCE_COUNT = 9;
 
 export const SOURCE_KIND = Object.freeze({
   UNCONFIGURED: "unconfigured",

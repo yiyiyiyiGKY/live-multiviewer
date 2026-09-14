@@ -22,9 +22,12 @@ namespace LiveMultiviewer
                 "testsrc2=size=320x180:rate=30[out0];sine=frequency=880:sample_rate=48000[out1]",
                 "color=black:size=320x180:rate=30[out0];sine=frequency=440:sample_rate=48000[out1]",
                 "smptebars=size=320x180:rate=30[out0];sine=frequency=440:sample_rate=48000[out1]",
-                "testsrc=size=320x180:rate=30[out0];anullsrc=r=48000:cl=stereo[out1]" };
+                "testsrc=size=320x180:rate=30[out0];anullsrc=r=48000:cl=stereo[out1]",
+                "testsrc=size=320x180:rate=25[out0];sine=frequency=550:sample_rate=48000[out1]",
+                "testsrc2=size=320x180:rate=25[out0];sine=frequency=660:sample_rate=48000[out1]",
+                "smptehdbars=size=320x180:rate=30[out0];sine=frequency=770:sample_rate=48000[out1]" };
             MonitorSettings settings = new MonitorSettings();
-            for (int i = 0; i < 6; i++) settings.sources.Add(new SourceSettings { id = "source-" + i, name = "测试视频源 " + (i + 1), url = inputs[i] });
+            for (int i = 0; i < MonitorSettings.SourceCount; i++) settings.sources.Add(new SourceSettings { id = "source-" + (i + 1), name = "测试视频源 " + (i + 1), url = inputs[i] });
             using (MonitorWindow form = new MonitorWindow(null, settings, true))
             using (Timer poll = new Timer { Interval = 100 })
             {
@@ -38,11 +41,11 @@ namespace LiveMultiviewer
                 poll.Tick += delegate {
                     try
                     {
-                        Require(deadline.Elapsed.TotalSeconds < 25, "Six-source test timed out.");
+                        Require(deadline.Elapsed.TotalSeconds < 30, "Nine-source test timed out.");
                         Require(tiles.All(t => !t.Video.RenderFailed && (t.Video.Source == null || !t.Video.Source.SampleFailed)), "Graphics callback failed.");
                         if (phase == 0 && tiles.All(t => t.Video.Source.Samples >= 2 && t.Video.Source.AudioMeasured))
                         {
-                            Require(form.SessionCount == 5 && tiles[0].Video.Source == tiles[1].Video.Source, "Source sharing failed.");
+                            Require(form.SessionCount == 8 && tiles[0].Video.Source == tiles[1].Video.Source, "Source sharing failed.");
                             MediaSource[] before = tiles.Select(t => t.Video.Source).ToArray();
                             Require(before.All(s => s.Width == 320 && s.Height == 180), "Decoded dimensions failed.");
                             form.FocusTile(tiles[0]); form.FocusTile(tiles[0]); form.MoveTile(tiles[0], tiles[2]);
@@ -56,10 +59,10 @@ namespace LiveMultiviewer
                             bool rolledBack = false;
                             try { form.ApplySettings(invalid); }
                             catch (ArgumentOutOfRangeException) { rolledBack = true; }
-                            Require(rolledBack && form.SessionCount == 5 && tiles.Select(t => t.Video.Source).SequenceEqual(before), "Failed settings apply changed active sources.");
+                            Require(rolledBack && form.SessionCount == 8 && tiles.Select(t => t.Video.Source).SequenceEqual(before), "Failed settings apply changed active sources.");
                             form.ApplySettings(new MonitorSettings { sources = form.Tiles.Select(t => t.Settings).ToList() });
-                            Require(form.SessionCount == 5 && tiles.Select(t => t.Video.Source).SequenceEqual(before), "Unchanged settings restarted playback.");
-                            Console.WriteLine("PASS: six previews, decode, D3D11 readback, audio, source sharing, focus/reorder");
+                            Require(form.SessionCount == 8 && tiles.Select(t => t.Video.Source).SequenceEqual(before), "Unchanged settings restarted playback.");
+                            Console.WriteLine("PASS: nine previews, decode, D3D11 readback, audio, source sharing, focus/reorder");
                             Console.WriteLine("PASS: settings apply preserves sessions and rolls back provisional references on failure");
                             phase = 1;
                         }
@@ -69,17 +72,17 @@ namespace LiveMultiviewer
                             SaveScreenshot(form, projectRoot);
                             Console.WriteLine("PASS: black/static/silent signals detected; moving source remains healthy");
                             MediaSource removed = tiles[4].Video.Source;
-                            form.ReplaceSource(tiles[4], new SourceSettings { id = "source-4", name = "替换测试", url = inputs[2] });
-                            Require(removed.Handle == IntPtr.Zero && form.SessionCount == 4, "Replaced source leaked.");
+                            form.ReplaceSource(tiles[4], new SourceSettings { id = "source-5", name = "替换测试", url = inputs[2] });
+                            Require(removed.Handle == IntPtr.Zero && form.SessionCount == 7, "Replaced source leaked.");
                             shared = tiles[0].Video.Source;
-                            form.ReplaceSource(tiles[0], new SourceSettings { id = "source-0", name = "停用测试", url = "" });
-                            Require(shared.Handle != IntPtr.Zero && tiles[1].Video.Source == shared, "Shared source stopped too early.");
+                            form.ReplaceSource(tiles[0], new SourceSettings { id = "source-1", name = "停用测试", url = "" });
+                            Require(shared.Handle != IntPtr.Zero && tiles[1].Video.Source == shared && form.SessionCount == 7, "Shared source stopped too early.");
                             samples = shared.Samples; phase = 2;
                         }
                         else if (phase == 2 && shared.Samples > samples)
                         {
-                            form.ReplaceSource(tiles[1], new SourceSettings { id = "source-1", name = "停用测试 2", url = "" });
-                            Require(shared.Handle == IntPtr.Zero && form.SessionCount == 3, "Last source reference leaked.");
+                            form.ReplaceSource(tiles[1], new SourceSettings { id = "source-2", name = "停用测试 2", url = "" });
+                            Require(shared.Handle == IntPtr.Zero && form.SessionCount == 6, "Last source reference leaked.");
                             Console.WriteLine("PASS: source replacement/removal preserves other previews");
                             result = 0; poll.Stop(); form.Close();
                         }
@@ -120,8 +123,16 @@ namespace LiveMultiviewer
             string root = Path.Combine(Path.GetTempPath(), "LiveMultiviewer-test-" + Guid.NewGuid().ToString("N"));
             try
             {
+                MonitorSettings legacy = new MonitorSettings();
+                for (int i = 0; i < 6; i++) legacy.sources.Add(new SourceSettings { id = "legacy-" + (i + 1), name = "旧来源 " + (i + 1), url = "rtmp://example.invalid/live/source-" + (i + 1) });
+                legacy.Normalize();
+                Require(legacy.sources.Count == MonitorSettings.SourceCount, "Legacy settings were not expanded to nine sources.");
+                Require(legacy.sources.Take(6).Select(source => source.name).SequenceEqual(Enumerable.Range(1, 6).Select(i => "旧来源 " + i)), "Legacy sources changed during migration.");
+                Require(legacy.sources.Skip(6).All(source => String.IsNullOrWhiteSpace(source.url)), "New source slots are not empty.");
+
                 SettingsStore store = new SettingsStore(root);
                 MonitorSettings settings = store.Load();
+                Require(settings.sources.Count == MonitorSettings.SourceCount, "Default source count is not nine.");
                 settings.sources[0].url = "rtmp://example.invalid/test/synthetic-secret";
                 settings.sources[0].name = "中文机位";
                 store.Save(settings);

@@ -17,10 +17,10 @@ class MemoryStorage {
   }
 }
 
-test("无存储数据时返回六路默认设置", () => {
+test("无存储数据时返回九路默认设置", () => {
   const repository = new BrowserStateRepository(new MemoryStorage());
   const settings = repository.loadSettings();
-  assert.equal(settings.sources.length, 6);
+  assert.equal(settings.sources.length, 9);
   assert.equal(settings.layoutLocked, true);
 });
 
