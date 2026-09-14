@@ -25,3 +25,12 @@ test("持续异常和持续恢复各只提交一次", () => {
     to: HEALTH_SEVERITY.NORMAL,
   });
 });
+
+test("更换一路来源只清除该路告警状态", () => {
+  const alarms = new AlarmDebouncer(3_000);
+  alarms.observe("source-1", "offline", HEALTH_SEVERITY.CRITICAL, 0);
+  alarms.observe("source-2", "offline", HEALTH_SEVERITY.CRITICAL, 0);
+  alarms.forget("source-1");
+  assert.equal(alarms.states.has("source-1"), false);
+  assert.equal(alarms.states.has("source-2"), true);
+});

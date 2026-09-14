@@ -23,11 +23,13 @@ export async function createPlaybackAdapter({ url, video, onFatalError, onWarnin
   return createNativeVideoAdapter({ url, video });
 }
 
-function createHlsAdapter({ Hls, url, video, onFatalError, onWarning }) {
-  if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    return createNativeVideoAdapter({ url, video });
+export function createHlsAdapter({ Hls, url, video, onFatalError, onWarning }) {
+  if (!Hls.isSupported()) {
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      return createNativeVideoAdapter({ url, video });
+    }
+    throw new Error("当前浏览器不支持 HLS 播放");
   }
-  if (!Hls.isSupported()) throw new Error("当前浏览器不支持 HLS 播放");
 
   const hls = new Hls(HLS_PLAYBACK_CONFIG);
 

@@ -96,7 +96,7 @@ function createInputArguments(inputUrl) {
   const commonArguments = ["-rw_timeout", "10000000"];
   const protocol = new URL(inputUrl).protocol;
   if (protocol === "rtsp:") {
-    return [...commonArguments, "-rtsp_transport", "tcp", "-use_wallclock_as_timestamps", "1"];
+    return ["-rtsp_transport", "tcp", "-timeout", "10000000", "-use_wallclock_as_timestamps", "1"];
   }
   if (protocol === "rtmp:") {
     return [...commonArguments, "-rtmp_live", "live", "-rtmp_buffer", "0", "-tcp_nodelay", "1"];

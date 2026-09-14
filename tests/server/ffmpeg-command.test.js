@@ -52,7 +52,8 @@ test("RTSP 输入使用 TCP 和墙钟时间戳，RTMP 不使用", () => {
     "libx264",
   );
   assert.ok(includesSequence(rtspArguments, ["-rtsp_transport", "tcp"]));
-  assert.ok(includesSequence(rtspArguments, ["-rw_timeout", "10000000"]));
+  assert.ok(includesSequence(rtspArguments, ["-timeout", "10000000"]));
+  assert.ok(!rtspArguments.includes("-rw_timeout"));
   assert.ok(rtspArguments.includes("-use_wallclock_as_timestamps"));
   assert.ok(includesSequence(rtmpArguments, ["-rw_timeout", "10000000"]));
   assert.ok(includesSequence(rtmpArguments, ["-rtmp_live", "live"]));

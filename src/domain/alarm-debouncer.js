@@ -10,6 +10,10 @@ export class AlarmDebouncer {
     this.states.clear();
   }
 
+  forget(sourceId) {
+    this.states.delete(sourceId);
+  }
+
   observe(sourceId, monitorState, severity, observedAt = Date.now()) {
     const state = this.states.get(sourceId) ?? {
       observedSeverity: HEALTH_SEVERITY.NORMAL,

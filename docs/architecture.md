@@ -86,9 +86,9 @@ RTSP / RTMP / SRT / HTTP(S)
 
 默认产品路径不经过这条 HLS 链路。Windows 原生版由 `SourcePool` 为每个唯一地址持有一个 OBS
 `ffmpeg_source`：不同地址拥有独立生命周期，相同地址的多个窗口渲染同一个源；这些来源仍共享设备的
-CPU、GPU 与网络资源。网络媒体缓冲设为 0，对应
-OBS 32.2.1 在零缓冲时启用 FFmpeg `AVFMT_FLAG_NOBUFFER` 的既有实现。旧网页网关对 RTMP 显式
-关闭默认 3000 ms 输入缓冲，对输出及时刷新，并由 hls.js 自己的延迟控制器追赶直播边缘；不再叠加
+CPU、GPU 与网络资源。网络媒体缓冲保留 OBS 默认的 2 MB；零缓冲尚无 Windows 实机兼容性证据，
+不作为默认设置。旧网页网关对 RTMP 显式关闭默认 3000 ms 输入缓冲，RTSP 使用解复用器的
+`timeout` 选项，对输出及时刷新，并由 hls.js 自己的延迟控制器追赶直播边缘；不再叠加
 第二套自制播放器同步器。网关对 HTTP-TS 输入不启用 FFmpeg `nobuffer`：真实媒体集成测试显示它让
 每个新来源的首播时间从约 8 秒升到约 13 秒。
 
@@ -101,7 +101,7 @@ OBS 32.2.1 在零缓冲时启用 FFmpeg `AVFMT_FLAG_NOBUFFER` 的既有实现。
 - [Grass Valley Kaleido-IP](https://www.grassvalley.com/products/multiviewers-hardware/kaleido-ip/)：专业监看不仅确认连接，还检测静帧、静音等信号质量。因此本项目把内容异常与连接异常纳入同一健康模型。
 - [TAG Audio Monitoring](https://tagvs.com/features/audio-monitoring/) 与 [Penalty Box](https://tagvs.com/features/penalty-box/)：告警应有阈值，只把需要处理的来源推到操作员面前。因此本项目先做三秒去抖和集中事件栏；异常专注视图列为下一阶段。
 - [MediaMTX](https://mediamtx.org/docs/kickoff/introduction)：成熟媒体路由器统一接入 RTSP、RTMP、SRT、HLS、WebRTC，并提供控制 API 与指标。当前内置网关保持相同的“来源、媒体转换、指标、UI”分层，便于后续替换为成熟媒体服务。
-- [OBS FFmpeg source](https://github.com/obsproject/obs-studio/blob/32.2.1/plugins/obs-ffmpeg/obs-ffmpeg-source.c) 与 [media-playback](https://github.com/obsproject/obs-studio/blob/32.2.1/shared/media-playback/media-playback/media.c)：网络缓冲是来源级配置，零缓冲直接启用 FFmpeg 无缓冲标志。因此原生版按唯一地址配置来源，而不是用 UI 定时器追帧。
+- [OBS FFmpeg source](https://github.com/obsproject/obs-studio/blob/32.2.1/plugins/obs-ffmpeg/obs-ffmpeg-source.c) 与 [media-playback](https://github.com/obsproject/obs-studio/blob/32.2.1/shared/media-playback/media-playback/media.c)：网络缓冲是来源级配置，默认 2 MB；零缓冲会启用 FFmpeg 无缓冲标志，但当前原生版先保留原有默认值，待实机对照后再决定是否调整。
 - [FFmpeg 协议选项](https://ffmpeg.org/ffmpeg-protocols.html)：RTMP 默认拥有 3000 ms 缓冲，并提供 live 模式与 `tcp_nodelay`；旧网页网关显式采用这些实时输入选项。
 - [hls.js 1.7.2 latency controller](https://github.com/video-dev/hls.js/blob/v1.7.2/src/controller/latency-controller.ts)：播放器已有直播边缘估算、最大延迟恢复和受限倍速追赶。因此网页兼容版配置该控制器并测试配置值，不重复实现跨播放器同步算法。
 - [GStreamer queue](https://gstreamer.freedesktop.org/documentation/coreelements/queue.html)：实时管线通过有限队列和丢弃过期缓冲保证新鲜度，而不是允许队列持续增长。本项目采用同一原则，但不把没有源端时间戳的不同来源误称为同步。

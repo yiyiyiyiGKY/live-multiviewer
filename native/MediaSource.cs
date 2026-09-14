@@ -79,9 +79,8 @@ namespace LiveMultiviewer
                 Obs.obs_data_set_bool(settings, Obs.Utf8("restart_on_activate"), false);
                 Obs.obs_data_set_bool(settings, Obs.Utf8("close_when_inactive"), false);
                 Obs.obs_data_set_bool(settings, Obs.Utf8("clear_on_media_end"), true);
-                // Live monitoring prioritizes current frames over smooth playback.
-                // OBS 32.2.1 enables AVFMT_FLAG_NOBUFFER when this value is zero.
-                Obs.obs_data_set_int(settings, Obs.Utf8("buffering_mb"), 0);
+                // Keep OBS's bounded network buffer; do not force unbuffered playback.
+                Obs.obs_data_set_int(settings, Obs.Utf8("buffering_mb"), 2);
                 Obs.obs_data_set_int(settings, Obs.Utf8("reconnect_delay_sec"), 2);
                 Handle = Obs.obs_source_create_private(Obs.Utf8("ffmpeg_source"), Obs.Utf8("monitor-media"), settings);
             }

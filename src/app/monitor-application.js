@@ -34,6 +34,7 @@ export class MonitorApplication {
     this.runtimeTimer = null;
     this.gatewayTimer = null;
     this.toastTimer = null;
+    this.savingConfiguration = false;
   }
 
   async start() {
@@ -127,28 +128,37 @@ export class MonitorApplication {
     this.alarmDebouncer.reset();
     this.elements.sourceGrid.replaceChildren();
 
-    for (const source of this.state.sources) {
-      const sourceTile = createSourceTile(source, {
-        isLayoutLocked: () => this.state.layoutLocked,
-        onSelect: (sourceId) => this.toggleSourceListening(sourceId),
-        onFocus: (sourceId) => this.toggleSourceFocus(sourceId),
-        onMove: (sourceId, targetId) => this.reorderSource(sourceId, targetId),
-        onConfigure: (sourceId) => this.openSourceConfiguration(sourceId),
-      });
-      this.elements.sourceGrid.append(sourceTile.root);
-      this.state.sourceTiles.set(source.id, sourceTile);
+    for (const source of this.state.sources) this.mountSource(source);
 
-      const mediaSession = new SourceMediaSession(
-        source,
-        (health) => this.handleSourceHealth(source, health),
-        this.gatewayClient,
-      );
-      this.state.mediaSessions.set(source.id, mediaSession);
-      mediaSession.mount(sourceTile.mediaHost);
-    }
-
+    this.updateSourceOrder();
     this.updateSourcePresentation();
     this.updateToolbar();
+  }
+
+  mountSource(source) {
+    const sourceTile = createSourceTile(source, {
+      isLayoutLocked: () => this.state.layoutLocked,
+      onSelect: (sourceId) => this.toggleSourceListening(sourceId),
+      onFocus: (sourceId) => this.toggleSourceFocus(sourceId),
+      onMove: (sourceId, targetId) => this.reorderSource(sourceId, targetId),
+      onConfigure: (sourceId) => this.openSourceConfiguration(sourceId),
+    });
+    this.elements.sourceGrid.append(sourceTile.root);
+    this.state.sourceTiles.set(source.id, sourceTile);
+
+    const mediaSession = new SourceMediaSession(
+      source,
+      (health) => this.handleSourceHealth(source, health),
+      this.gatewayClient,
+    );
+    this.state.mediaSessions.set(source.id, mediaSession);
+    mediaSession.mount(sourceTile.mediaHost);
+  }
+
+  updateSourceOrder() {
+    for (const [index, source] of this.state.sources.entries()) {
+      this.state.sourceTiles.get(source.id).root.style.order = index;
+    }
   }
 
   toggleSourceListening(sourceId) {
@@ -176,7 +186,7 @@ export class MonitorApplication {
       return;
     this.state.sources = reorderedSources;
     this.saveSettings();
-    this.mountSourceGrid();
+    this.updateSourceOrder();
     this.showToast("视频源位置已更新");
   }
 
@@ -197,6 +207,7 @@ export class MonitorApplication {
   }
 
   handleSourceHealth(source, health) {
+    if (this.findSource(source.id) !== source) return;
     this.state.sourceHealth.set(source.id, health);
     const currentSeverity = getHealthSeverity(health.state);
     this.updateDebouncedAlarm(source, health, currentSeverity);
@@ -251,9 +262,10 @@ export class MonitorApplication {
     }
   }
 
-  handleConfigurationSubmit(event) {
+  async handleConfigurationSubmit(event) {
     if (event.submitter?.value !== "save") return;
     event.preventDefault();
+    if (this.savingConfiguration) return;
     const sources = readSourceConfigForm(this.elements.configFields);
     const validationErrors = validateSources(sources, this.state.sources.length);
     if (validationErrors.length) {
@@ -261,25 +273,60 @@ export class MonitorApplication {
       return;
     }
 
-    this.stopReplacedGatewaySources(this.state.sources, sources);
-    this.state.sources = sources;
-    this.saveSettings();
-    this.elements.configDialog.close();
-    this.mountSourceGrid();
-    this.showToast("视频源配置已保存并重新连接");
+    this.savingConfiguration = true;
+    try {
+      const previousSources = this.state.sources;
+      const previousById = new Map(previousSources.map((source) => [source.id, source]));
+      const changedSources = sources.filter((source) => {
+        const previous = previousById.get(source.id);
+        return !previous || !sameSourceConfiguration(previous, source);
+      });
+      const nextIds = new Set(sources.map((source) => source.id));
+      const changedIds = new Set(changedSources.map((source) => source.id));
+      const replacedSources = previousSources.filter(
+        (source) => !nextIds.has(source.id) || changedIds.has(source.id),
+      );
+      for (const source of replacedSources) {
+        this.state.mediaSessions.get(source.id)?.dispose();
+        this.state.mediaSessions.delete(source.id);
+      }
+      await this.stopReplacedGatewaySources(previousSources, sources);
+      for (const source of replacedSources) {
+        this.state.sourceTiles.get(source.id)?.root.remove();
+        this.state.sourceTiles.delete(source.id);
+        this.state.sourceHealth.delete(source.id);
+        this.alarmDebouncer.forget(source.id);
+      }
+      this.state.sources = sources;
+      this.saveSettings();
+      this.elements.configDialog.close();
+      for (const source of changedSources) {
+        this.mountSource(source);
+        this.state.mediaSessions.get(source.id).setMuted(source.id !== this.state.listenedSourceId);
+      }
+      this.updateSourceOrder();
+      this.updateSourcePresentation();
+      renderActiveEventSummary(this.elements, this.state.sources, this.state.sourceHealth);
+      this.showToast("视频源配置已保存");
+    } finally {
+      this.savingConfiguration = false;
+    }
   }
 
   stopReplacedGatewaySources(previousSources, nextSources) {
     const nextSourcesById = new Map(nextSources.map((source) => [source.id, source]));
-    for (const source of previousSources) {
-      const replacement = nextSourcesById.get(source.id);
-      if (
-        isSupportedMediaUrl(source.url) &&
-        (!replacement || replacement.url !== source.url || !isSupportedMediaUrl(replacement.url))
-      ) {
-        this.gatewayClient.stopStream(source.id).catch(() => {});
-      }
-    }
+    return Promise.all(
+      previousSources.map((source) => {
+        const replacement = nextSourcesById.get(source.id);
+        if (
+          isSupportedMediaUrl(source.url) &&
+          (!replacement || replacement.url !== source.url || !isSupportedMediaUrl(replacement.url))
+        ) {
+          return this.gatewayClient.stopStream(source.id).catch(() => {});
+        }
+        return Promise.resolve();
+      }),
+    );
   }
 
   reconnectSources() {
@@ -365,4 +412,12 @@ export class MonitorApplication {
       2_200,
     );
   }
+}
+
+export function sameSourceConfiguration(previous, next) {
+  return (
+    previous.name === next.name &&
+    previous.url === next.url &&
+    previous.audioExpected === next.audioExpected
+  );
 }
